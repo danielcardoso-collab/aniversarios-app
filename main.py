@@ -8,7 +8,7 @@ from sendgrid.helpers.mail import Mail
 API_KEY = os.getenv("SENDGRID_API_KEY")
 EMAIL_REMETENTE = "daniel.cardoso@potenza-investimentos.com"
 
-CAMINHO_ARQUIVO = "/Users/danielnatacardoso/Dropbox/Potenza - Operacional/Lista de Aniversários.xlsx"
+CAMINHO_ARQUIVO = "Aniversarios.xlsx"
 
 # ===== LER PLANILHA =====
 df = pd.read_excel(CAMINHO_ARQUIVO, sheet_name=0)
