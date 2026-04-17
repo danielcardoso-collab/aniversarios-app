@@ -13,6 +13,8 @@ CAMINHO_ARQUIVO = "Aniversarios.xlsx"
 # ===== LER PLANILHA =====
 df = pd.read_excel(CAMINHO_ARQUIVO, sheet_name=0)
 
+print("Script automático rodou")
+
 hoje = datetime.now().strftime("%d/%m")
 
 # ===== FUNÇÃO PARA MULTI-EMPRESA =====
