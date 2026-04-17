@@ -8,7 +8,7 @@ from sendgrid.helpers.mail import Mail
 API_KEY = os.getenv("SENDGRID_API_KEY")
 EMAIL_REMETENTE = "daniel.cardoso@potenza-investimentos.com"
 
-CAMINHO_ARQUIVO = "aniversarios.xlsx"
+CAMINHO_ARQUIVO = "/Users/danielnatacardoso/Dropbox/Potenza - Operacional/Lista de Aniversários.xlsx"
 
 # ===== LER PLANILHA =====
 df = pd.read_excel(CAMINHO_ARQUIVO, sheet_name=0)
@@ -16,11 +16,10 @@ df = pd.read_excel(CAMINHO_ARQUIVO, sheet_name=0)
 hoje = datetime.now().strftime("%d/%m")
 
 # ===== FUNÇÃO PARA MULTI-EMPRESA =====
-def pertence_empresa(empresas_str, empresa_alvo):
+def lista_empresas(empresas_str):
     if pd.isna(empresas_str):
-        return False
-    lista = [e.strip() for e in str(empresas_str).split(",")]
-    return empresa_alvo in lista
+        return []
+    return [e.strip() for e in str(empresas_str).split(",")]
 
 # ===== FUNÇÃO DE ENVIO COM BCC =====
 def enviar_email_com_bcc(destino, bcc_lista, assunto, corpo):
@@ -36,14 +35,15 @@ def enviar_email_com_bcc(destino, bcc_lista, assunto, corpo):
     )
 
     if bcc_lista:
-        for email in bcc_lista:
-            if email and email != destino:
-                message.add_bcc(email)
+        for email_bcc in bcc_lista:
+            if email_bcc and email_bcc != destino:
+                message.add_bcc(email_bcc)
 
     try:
         sg = SendGridAPIClient(API_KEY)
         sg.send(message)
         print(f"Email enviado para {destino}")
+        print(f"BCC enviados: {bcc_lista}")
     except Exception as e:
         print(f"Erro ao enviar para {destino}: {e}")
 
@@ -66,16 +66,29 @@ for _, row in df.iterrows():
     except:
         continue
 
+    # 🎯 CONDIÇÃO PRINCIPAL
     if data == hoje and tipo == "Pessoa":
 
-        # 👥 filtra equipe considerando múltiplas empresas
-        equipe = df[df['Empresa'].apply(lambda x: pertence_empresa(x, empresa))]
+        print(f"\n🎉 Aniversariante do dia: {nome}")
 
-        # lista de emails da equipe (remove aniversariante)
-        emails_equipe = [
-            e for e in equipe['Email'].dropna().tolist()
-            if e != email
+        # 👥 empresas do aniversariante
+        empresas_aniversariante = set(lista_empresas(empresa))
+
+        # 👥 filtra equipe (qualquer interseção de empresa)
+        equipe = df[
+            df['Empresa'].apply(
+                lambda x: len(empresas_aniversariante.intersection(lista_empresas(x))) > 0
+            )
         ]
+
+        # 📧 lista de emails (sem duplicados e sem o próprio aniversariante)
+        emails_equipe = list(set([
+            str(e).strip().lower()
+            for e in equipe['Email'].dropna().tolist()
+            if str(e).strip().lower() != str(email).strip().lower()
+        ]))
+
+        print(f"👥 Pessoas notificadas (BCC): {emails_equipe}")
 
         # 🎉 envia email
         enviar_email_com_bcc(
@@ -90,7 +103,7 @@ for _, row in df.iterrows():
 <p>Hoje é um dia especial — e nós não poderíamos deixar de celebrar com você! 🎉</p>
 
 <p>
-Toda a equipe da <b>{empresa}</b> deseja um aniversário repleto de alegria, saúde e conquistas.
+Desejamos um aniversário repleto de alegria, saúde e conquistas.
 </p>
 
 <p>
@@ -106,10 +119,10 @@ Agradecemos por fazer parte da nossa equipe e por tudo que você constrói conos
 <br>
 
 <p>Com carinho,<br>
-<b>Equipe {empresa}</b></p>
+<b>Equipe Potenza</b>
 
 </div>
 """
         )
 
-print("Processo finalizado com sucesso.")
+print("\n✅ Processo finalizado com sucesso.")
