@@ -25,4 +25,4 @@ jobs:
       - name: Executar script
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-        run: python script.py
+        run: python main.py
