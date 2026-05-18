@@ -6,7 +6,7 @@ from sendgrid.helpers.mail import Mail
 
 # ===== CONFIGURAÇÕES =====
 API_KEY = os.getenv("SENDGRID_API_KEY")
-EMAIL_REMETENTE = "daniel.cardoso@potenza-investimentos.com"
+EMAIL_REMETENTE = "daniel.cardoso@potenza-compliance.com"
 
 CAMINHO_ARQUIVO = "Aniversarios.xlsx"
 
